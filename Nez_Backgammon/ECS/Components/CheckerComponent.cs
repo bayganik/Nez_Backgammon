@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Nez;
 using Nez.Textures;
 
-namespace TestMiniMax.ECS.Components
+namespace Nez_Backgammon.ECS.Components
 {
     public class CheckerComponent : Component
     {

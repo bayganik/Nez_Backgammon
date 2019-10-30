@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nez;
 
-namespace TestMiniMax.ECS.Components
+namespace Nez_Backgammon
 {
     /*
      * initial board for Backgammon
@@ -24,28 +24,23 @@ namespace TestMiniMax.ECS.Components
      * |-----------------|------------------|
      *  11 10  9  8  7  6  5  4  3  2  1  0
      */
-    public class BoardComponent : Component
+    public class BKBoard
     {
         public int[] NumOfCheckers;
-        public BoardComponent()
+        public BKBoard()
         {
             NumOfCheckers = new int[26];
-        }
-
-        public override void OnAddedToEntity()
-        {
-            base.OnAddedToEntity();
             //
             // Places all checkers at their initial positions.
             //
-            NumOfCheckers[ 0] = -2;          //black Computer
+            NumOfCheckers[0] = -2;          //black Computer
             NumOfCheckers[11] = -5;          //black Computer
             NumOfCheckers[18] = -5;          //black Computer
             NumOfCheckers[16] = -3;          //black Computer
 
-            NumOfCheckers[ 5] = 5;           //white
+            NumOfCheckers[5] = 5;           //white
             NumOfCheckers[12] = 5;           //white
-            NumOfCheckers[ 7] = 3;           //white
+            NumOfCheckers[7] = 3;           //white
             NumOfCheckers[23] = 2;           //white
         }
     }

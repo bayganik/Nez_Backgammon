@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Nez.ImGuiTools;
 using Nez;
 
-namespace TestMiniMax
+namespace Nez_Backgammon
 {
     /// <summary>
     /// This is the main type for your game.
@@ -14,7 +14,7 @@ namespace TestMiniMax
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1() : base(800, 600, false, true, "Test of MiniMax - Java version")
+        public Game1() : base(1000, 700, false, true, "Test of MiniMax - Java version")
         { }
         protected override void Initialize()
         {

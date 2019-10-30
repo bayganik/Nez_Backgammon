@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Nez;
 
-namespace TestMiniMax.ECS.Components
+namespace Nez_Backgammon.ECS.Components
 {    /*
      * initial stacks for Backgammon
      * negative numbers are computer
@@ -29,6 +29,11 @@ namespace TestMiniMax.ECS.Components
         public int StackID;                 //0 - 99 
         public string CName = "Stack of Checkers";
         public Vector2 Location;
+        //
+        // are checkers in this stack fanned out?
+        //
+        public int FannedDirection = 3;     // 0=stack on top eachother, 1=right, 2=left, 3=up, 4=down
+        public float FannedOffset = 0.35f;  // how far to separate the cards from eachother
 
         public List<Entity> CheckersInStack;    //number of checkers in this stack
         public StackComponent()

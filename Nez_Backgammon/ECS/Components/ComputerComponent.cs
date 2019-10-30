@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Nez;
 
-namespace TestMiniMax.ECS.Components
+namespace Nez_Backgammon.ECS.Components
 {
     public class ComputerComponent : Component
     {

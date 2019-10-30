@@ -58,18 +58,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ECS\Components\BoardComponent.cs" />
+    <Compile Include="BKBoard.cs" />
     <Compile Include="ECS\Components\CheckerComponent.cs" />
     <Compile Include="ECS\Components\ComputerComponent.cs" />
     <Compile Include="ECS\Components\DiceComponent.cs" />
+    <Compile Include="ECS\Components\DragComponent.cs" />
     <Compile Include="ECS\Components\MouseComponent.cs" />
     <Compile Include="ECS\Components\StackComponent.cs" />
-    <Compile Include="Model\BKBoard.cs" />
-    <Compile Include="Model\Expectiminimax.cs" />
-    <Compile Include="Model\GameState.cs" />
-    <Compile Include="Model\Checker.cs" />
-    <Compile Include="Model\Move.cs" />
-    <Compile Include="Model\Player.cs" />
+    <Compile Include="ECS\Systems\CheckerDragSystem.cs" />
+    <Compile Include="ECS\Systems\MouseClickSystem.cs" />
+    <Compile Include="ECS\Systems\StackDispSystem.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -149,9 +147,7 @@
     <None Include="Content\Arial.spritefont" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ECS\Systems\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>

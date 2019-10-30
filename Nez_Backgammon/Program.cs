@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TestMiniMax
+namespace Nez_Backgammon
 {
     /// <summary>
     /// The main class.

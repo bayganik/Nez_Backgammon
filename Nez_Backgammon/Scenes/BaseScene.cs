@@ -2,7 +2,7 @@
 using Nez;
 using Nez.UI;
 
-namespace TestMiniMax.Scenes
+namespace Nez_Backgammon.Scenes
 {
     public abstract class BaseScene : Scene
     {
