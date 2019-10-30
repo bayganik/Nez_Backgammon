@@ -51,6 +51,7 @@ namespace Nez_Backgammon.Scenes
         public TextButton NewButton { get; set; }
         public Label Msg { get; set; }
         public Entity CheckerBeingDragged { get; set; }
+        public bool Dragging { get; set; }
         public MainScene()
         {
             policy = Scene.SceneResolutionPolicy.ExactFit;
@@ -104,7 +105,6 @@ namespace Nez_Backgammon.Scenes
             // Background is the backgammon board
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             Background = CreateEntity("backgammonboard", new Vector2(0, 0));
-            Background.Tag = 90;
             Background.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("BKBoard")).SetRenderLayer(99));
             Background.GetComponent<SpriteRenderer>().SetOrigin(new Vector2(0, 0));
             Background.SetPosition(new Vector2(100, 50));
@@ -222,6 +222,7 @@ namespace Nez_Backgammon.Scenes
             this.AddEntityProcessor(new CheckerDragSystem(new Matcher().All(typeof(DragComponent))));
 
             GameBoard = new BKBoard();
+            Dragging = false;
             Fill_Stacks();
         }
         public void DropChecker2PreviousPosition()
@@ -250,7 +251,6 @@ namespace Nez_Backgammon.Scenes
                 for (int j = 0; j < _totalchkers; j++)
                 {
                     Entity _checker = CreateEntity("Checker" + i.ToString());
-                    _checker.Tag = i;
                     
                     CheckerComponent cc = new CheckerComponent();
                     cc.CName = "Checker" + i.ToString();

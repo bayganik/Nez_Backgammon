@@ -41,21 +41,36 @@ namespace Nez_Backgammon.ECS.Systems
             //
             entity.Transform.Position = Scene.Camera.ScreenToWorldPoint(new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y));
             MousePos = new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y);
-            if (Input.LeftMouseButtonDown)
+            //
+            // Check the mouse input action
+            //
+            if (Input.LeftMouseButtonPressed)
             {
+                MainGameScene.Dragging = false;
                 CollisionResult res;
                 if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
                     return;
                 Entity collidedEntity = collisionResult.Collider.Entity;
-                DragComponent dc = new DragComponent();
-                dc.PrevPosition = collidedEntity.Transform.Position;
+                //
+                // Make sure the collided entity is a checker
+                //
 
-                collidedEntity.AddComponent<DragComponent>(dc);
-                MainGameScene.CheckerBeingDragged = collidedEntity;
+                if (Math.Abs(collidedEntity.Tag) > 0)
+                {
+                    DragComponent dc = new DragComponent();
+                    dc.PrevPosition = collidedEntity.Transform.Position;
+
+                    collidedEntity.AddComponent<DragComponent>(dc);
+                    MainGameScene.CheckerBeingDragged = collidedEntity;
+                    MainGameScene.Dragging = true;
+                }
+                else
+                    MainGameScene.Dragging = false;
             }
             if (Input.LeftMouseButtonReleased)
             {
-                MainGameScene.DropChecker2PreviousPosition();
+                if (MainGameScene.Dragging)
+                    MainGameScene.DropChecker2PreviousPosition();
             }
             //{
             //    if (Dragging)
