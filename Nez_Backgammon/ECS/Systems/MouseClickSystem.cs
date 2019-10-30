@@ -62,7 +62,7 @@ namespace Nez_Backgammon.ECS.Systems
 
                     collidedEntity.AddComponent<DragComponent>(dc);
                     MainGameScene.CheckerBeingDragged = collidedEntity;
-                    MainGameScene.Dragging = true;
+                    MainGameScene.Dragging = true; 
                 }
                 else
                     MainGameScene.Dragging = false;
