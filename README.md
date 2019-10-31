@@ -10,3 +10,7 @@ However, You will find most examples of NEZ to be using updates inside "Componen
 ## Sample Screen
 
 ![game image](Backgammon.png)
+
+I've added a "Tag" property to all Buttons in Nez.  Please make that addition to your Nez project, recompile.  See the image below.
+
+![game image](Nez_Changes.png)
