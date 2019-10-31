@@ -14,7 +14,7 @@ namespace Nez_Backgammon
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1() : base(1000, 700, false, true, "Test of MiniMax - Java version")
+        public Game1() : base(1000, 700, false, true, "Backgammon MiniMax - Monogame version")
         { }
         protected override void Initialize()
         {

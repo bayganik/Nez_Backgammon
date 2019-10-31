@@ -27,17 +27,21 @@ namespace Nez_Backgammon.ECS.Systems
         public override void Process(Entity entity)
         {
             //
-            // ONLY MOUSE entity comes here
+            // ONLY MOUSE entity comes here, Process if White Checkers turn
+            // hint: If white player clicks on "Dice Roll" then its his turn
             //
             MainGameScene = entity.Scene as MainScene;              //hand entity belongs to MainScene
+            if (!MainGameScene.WhiteTurn)
+                return;
+
             //
-            // Hand image is the entity that comes here
+            // Mouse working area (find if it clicks on anything)
             //
             var _mouseCollider = entity.GetComponent<BoxCollider>();
             PrevMouse = CurrentMouse;
             CurrentMouse = Mouse.GetState();
             //
-            // Current location of the mouse used for the hand icon
+            // Current location of the mouse 
             //
             entity.Transform.Position = Scene.Camera.ScreenToWorldPoint(new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y));
             MousePos = new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y);
@@ -47,138 +51,71 @@ namespace Nez_Backgammon.ECS.Systems
             if (Input.LeftMouseButtonPressed)
             {
                 MainGameScene.Dragging = false;
-                CollisionResult res;
+                //
+                // If mouse click is not colliding with anything (do nothing)
+                //
                 if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
                     return;
+
                 Entity collidedEntity = collisionResult.Collider.Entity;
                 //
-                // Make sure the collided entity is a checker
+                // Collided entity is a stack of checkers
+                // Test it to be empty or black checkers (do nothing)
                 //
+                StackComponent sc = collidedEntity.GetComponent<StackComponent>();
+                if (sc == null)
+                    return;                         //no stack of checkers
 
-                if (Math.Abs(collidedEntity.Tag) > 0)
-                {
-                    DragComponent dc = new DragComponent();
-                    dc.PrevPosition = collidedEntity.Transform.Position;
+                if (sc.CheckersInStack.Count == 0)
+                    return;                         //empty stack of checkers
 
-                    collidedEntity.AddComponent<DragComponent>(dc);
-                    MainGameScene.CheckerBeingDragged = collidedEntity;
-                    MainGameScene.Dragging = true; 
-                }
-                else
-                    MainGameScene.Dragging = false;
+                if (sc.CheckersInStack[0].Tag < 0)  //test first checker 
+                    return;                         //black checkers
+                //
+                // This is the human player, White checker is grabbed 
+                // Find out where it can go, is it allowed to move
+                //
+                MainGameScene.Dragging = true;
+                Entity dragEnt = sc.CheckersInStack[0];
+                sc.CheckersInStack.RemoveAt(0);                 //Remove from original stack
+
+                DragComponent dc = new DragComponent();         
+                dc.FromStack = collidedEntity;                  //remember original stack
+                //dc.PrevPosition = dragEnt.Transform.Position;
+                dragEnt.AddComponent<DragComponent>(dc);        //add component so drag system can see it
+
+                MainGameScene.CheckerBeingDragged = dragEnt;    //make sure we know, the checker being dragged
+                
             }
             if (Input.LeftMouseButtonReleased)
             {
+                //
+                // Find the collider entity that checker is being dropped
+                //
+                if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
+                {
+                    if (MainGameScene.Dragging)
+                        MainGameScene.DropChecker2PreviousPosition();
+                    return;
+                }
+
+                Entity collidedEntity = collisionResult.Collider.Entity;
+
                 if (MainGameScene.Dragging)
-                    MainGameScene.DropChecker2PreviousPosition();
+                {
+                    //
+                    // Drop location must either be Empty or have one or more White checkers
+                    //
+                    StackComponent sc = collidedEntity.GetComponent<StackComponent>();
+                    if ((sc.CheckersInStack.Count == 0) || (sc.CheckersInStack[0].Tag > 0))
+                    {
+                        MainGameScene.DropChecker2NewPosition(collidedEntity);
+                    }
+                    else
+                        MainGameScene.DropChecker2PreviousPosition();
+
+                }
             }
-            //{
-            //    if (Dragging)
-            //    {
-            //        Dragging = false;
-            //        if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
-            //            return;
-
-            //        Entity collidedEntity = collisionResult.Collider.Entity;
-
-            //        //
-            //        // Dealt Card is released but was not put on a stack
-            //        //
-
-            //        if (collidedEntity.Tag == 80)
-            //        {
-            //            //
-            //            // Ace pile drop
-            //            //
-            //            MainGameScene.DropCardFromDrag2AceStat(collidedEntity);
-            //            return;                     //ace pile stack
-            //        }
-            //        if ((collidedEntity.Tag >= 1) && (collidedEntity.Tag <= 7))
-            //        {
-            //            //
-            //            // Play pile drop
-            //            //
-            //            MainGameScene.DropCardFromDrag2PlayStack(collidedEntity);
-            //            return;
-            //        }
-            //        //
-            //        // mouse released but not on Ace or Play area, return card to its place
-            //        //
-            //        MainGameScene.ReturnCardFromDrag2Stack();
-            //        return;                     //drap disp stack (release of mouse outside of play area)
-            //    }
-            //    else
-            //    {
-            //        //
-            //        // test card if last and face down, then flip it up
-            //        //
-            //    }
-            //}
-            //if (Input.LeftMouseButtonPressed)
-            //{
-            //    if (CardDeckManager.endOfGame)
-            //        return;
-
-            //    if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
-            //        return;                                             //clicking on entities that have no colliders
-            //    //
-            //    // We have clicked on a box collider
-            //    //
-
-            //    Entity collidedEntity = collisionResult.Collider.Entity;
-            //    //
-            //    // Stacks with tag=90 dealer pile displayed
-            //    // Stacks with tag=80 are Ace piles or Disp deal card
-            //    // Stacks with tag=70 dealer pile not displayed
-            //    // Stacks with tags 1 - 7 are play stacks
-            //    //
-            //    if (collidedEntity.Tag == 80)
-            //    {
-            //        //
-            //        // Ace pile
-            //        //
-            //        Dragging = true;
-            //        MainGameScene.DealCard2Drag(collidedEntity);
-
-            //        return;
-            //    }
-            //    if (collidedEntity.Tag == 90)
-            //    {
-            //        //
-            //        // Dealer stack with displayed cards
-            //        //
-            //        Dragging = false;
-            //        MainGameScene.DealCard2Disp(collidedEntity);
-
-            //        return;
-            //    }
-            //    if ((collidedEntity.Tag >= 1) && (collidedEntity.Tag <= 7))
-            //    {
-            //        //
-            //        // Play stacks 
-            //        //
-            //        Entity cardEntity = MainGameScene.FindCardInPlayStack(collidedEntity, new Vector2(MousePos.X, MousePos.Y));
-            //        if (cardEntity == null)
-            //            return;
-            //        //
-            //        // We have clicked on a Card/Cards that are going to be dragged
-            //        //
-            //        CardComponent isCard = cardEntity.GetComponent<CardComponent>();
-            //        if (isCard != null)
-            //        {
-            //            //
-            //            // if not face up, then leave it alone
-            //            //
-            //            //if (!isCard.IsFaceUp)
-            //            //    return;
-            //            //
-            //            // we have hit a card drag it (and all others under it)
-            //            //
-            //            Dragging = true;
-            //            MainGameScene.TakeCards2Drag(cardEntity);
-            //        }
-            //    }
-            //}
         }
     }
 }

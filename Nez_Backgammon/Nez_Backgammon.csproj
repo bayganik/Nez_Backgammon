@@ -67,7 +67,7 @@
     <Compile Include="ECS\Components\StackComponent.cs" />
     <Compile Include="ECS\Systems\CheckerDragSystem.cs" />
     <Compile Include="ECS\Systems\MouseClickSystem.cs" />
-    <Compile Include="ECS\Systems\StackDispSystem.cs" />
+    <Compile Include="ECS\Systems\BoardDispSystem.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -13,13 +13,13 @@ using Nez_Backgammon.Scenes;
 
 namespace Nez_Backgammon.ECS.Systems
 {
-    public class StackDispSystem : EntityProcessingSystem
+    public class BoardDispSystem : EntityProcessingSystem
     {
         //
         // Entities with StackComponent system to display what is on their location (Fanned out, in place, etc.)
         //
         Vector2 fanOutDistannce;
-        public StackDispSystem(Matcher matcher) : base(matcher)
+        public BoardDispSystem(Matcher matcher) : base(matcher)
         {
         }
         public override void Process(Entity entity)
@@ -38,16 +38,16 @@ namespace Nez_Backgammon.ECS.Systems
                     fanOutDistannce = Vector2.Zero;
                     break;
                 case 1:
-                    fanOutDistannce = new Vector2(31f, 0);
+                    fanOutDistannce = new Vector2(22f, 0);
                     break;
                 case 2:
-                    fanOutDistannce = new Vector2(-31f, 0);
+                    fanOutDistannce = new Vector2(-22f, 0);
                     break;
                 case 3:
-                    fanOutDistannce = new Vector2(0, -31f);         //upwards
+                    fanOutDistannce = new Vector2(0, -22f);         //upwards
                     break;
                 case 4:
-                    fanOutDistannce = new Vector2(0, 31f);          //downwards
+                    fanOutDistannce = new Vector2(0, 22f);          //downwards
                     break;
 
             }
@@ -62,10 +62,10 @@ namespace Nez_Backgammon.ECS.Systems
                 //checkerEntity.Enabled = true;
                 Vector2 stackPos = entity.Transform.Position;
 
-                if (sc.FannedDirection == 4)
-                    stackPos.Y -= 123 - 25;
+                if (sc.FannedDirection == 4)    //downward
+                    stackPos.Y -= 123 - 22;
                 else
-                    stackPos.Y += 123 - 25;
+                    stackPos.Y += 123 - 22;     //upward
 
                 checkerEntity.Transform.Position = stackPos + fanOutDistannce * new Vector2(ind, ind);
                 //
@@ -76,7 +76,7 @@ namespace Nez_Backgammon.ECS.Systems
                 //
                 // -1 is first to display and -9 is last layer to display
                 //
-                renderComp.RenderLayer = ind * -1;
+                renderComp.RenderLayer = ind * -100;
                 renderComp.Sprite = cardComp.CheckerFace;
 
                 ind += 1;
