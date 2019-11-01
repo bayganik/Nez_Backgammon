@@ -16,19 +16,21 @@ namespace Nez_Backgammon.ECS.Systems
     public class BoardDispSystem : EntityProcessingSystem
     {
         //
-        // Entities with StackComponent system to display what is on their location (Fanned out, in place, etc.)
+        // Entities with 'StackComponent' processed.  Display what is in their 'List<Entity> CheckersInStack' variable
         //
         Vector2 fanOutDistannce;
         public BoardDispSystem(Matcher matcher) : base(matcher)
         {
+
         }
         public override void Process(Entity entity)
         {
             //
-            // entity = PlayStack
+            // entity = Stack entities (there are 26 of them)
+            // This process happens for every stack
             //
             StackComponent sc = entity.GetComponent<StackComponent>();
-            Entity lastCardonStack = sc.CheckersInStack.LastOrDefault();
+            //Entity lastCardonStack = sc.CheckersInStack.LastOrDefault();
             //
             // fan out is half size of the checker
             //
@@ -51,33 +53,54 @@ namespace Nez_Backgammon.ECS.Systems
                     break;
 
             }
-            //
-            // All cards are Entities in this stack
-            //
-            int ind = 0;                            //checker number in stack
 
+
+            //
+            // if we have more than 10 checkers in this Stack, make the fanout value smaller so they all fit
+            //
+            if (sc.CheckersInStack.Count > 10)
+            {
+                switch (sc.FannedDirection)
+                {
+                    case 3:
+                        fanOutDistannce = new Vector2(0, -12f);
+                        break;
+                    case 4:
+                        fanOutDistannce = new Vector2(0, 12f);
+                        break;
+                }
+            }
+
+            int ind = 0;                            //checker index in stack
             for (int i = 0; i < sc.CheckersInStack.Count; i++)
             {
-                Entity checkerEntity = sc.CheckersInStack[i];
-                //checkerEntity.Enabled = true;
-                Vector2 stackPos = entity.Transform.Position;
-
+                Entity checkerEntity = sc.CheckersInStack[i];       //get checker
+                Vector2 stackPos = entity.Transform.Position;       //get location of the stack (doesn't change)
+                //
+                // The offset value upward or downward
+                //
                 if (sc.FannedDirection == 4)    //downward
-                    stackPos.Y -= 123 - 22;
+                    stackPos.Y -= 123 - 25;     //initial location
                 else
-                    stackPos.Y += 123 - 22;     //upward
-
+                    stackPos.Y += 123 - 25;     //upward
+                //
+                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+                // Checker position determined by stack position with offset values
+                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+                //
+                
                 checkerEntity.Transform.Position = stackPos + fanOutDistannce * new Vector2(ind, ind);
                 //
-                // Get the sprite (face/back)
+                // Get the CheckerComponent & its sprite shape
+                // (we don't need to do this every frame but then the checkers won't look pretty)
                 //
-                var cardComp = checkerEntity.GetComponent<CheckerComponent>();          //CheckerComponent has the data
-                var renderComp = checkerEntity.GetComponent<SpriteRenderer>();               //sprite renderer of the card
+                var cComp = checkerEntity.GetComponent<CheckerComponent>();          //CheckerComponent has the data
+                var renderComp = checkerEntity.GetComponent<SpriteRenderer>();       //sprite image of the checker
                 //
-                // -1 is first to display and -9 is last layer to display
+                // -1 is first layer to display and -9 is last layer to display
                 //
                 renderComp.RenderLayer = ind * -100;
-                renderComp.Sprite = cardComp.CheckerFace;
+                renderComp.Sprite = cComp.CheckerFace;
 
                 ind += 1;
             }

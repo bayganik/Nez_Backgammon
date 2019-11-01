@@ -14,11 +14,15 @@ namespace Nez_Backgammon.ECS.Systems
 {
     public class MouseClickSystem : EntityProcessingSystem
     {
+        bool singleBlack;
+        bool stackIsEmpty;
+        bool stackIsWhite;
+        //
+        // Mouse movements are processed here using 'MouseComponent'
+        //
         MouseState CurrentMouse;
-        MouseState PrevMouse;
-        bool Dragging = false;
         MainScene MainGameScene;
-
+        Entity stack;                   //game stack we clicked on
         Vector2 MousePos;
         public MouseClickSystem(Matcher matcher) : base(matcher)
         {
@@ -27,18 +31,18 @@ namespace Nez_Backgammon.ECS.Systems
         public override void Process(Entity entity)
         {
             //
-            // ONLY MOUSE entity comes here, Process if White Checkers turn
-            // hint: If white player clicks on "Dice Roll" then its his turn
+            // Mouse events are processed for White (human) player
+            // hint: After white player clicks on "Dice Roll" then its his turn
             //
             MainGameScene = entity.Scene as MainScene;              //hand entity belongs to MainScene
-            if (!MainGameScene.WhiteTurn)
+
+            if (!MainGameScene.WhiteCanMove)                        //Can white move?
                 return;
 
             //
             // Mouse working area (find if it clicks on anything)
             //
             var _mouseCollider = entity.GetComponent<BoxCollider>();
-            PrevMouse = CurrentMouse;
             CurrentMouse = Mouse.GetState();
             //
             // Current location of the mouse 
@@ -57,35 +61,38 @@ namespace Nez_Backgammon.ECS.Systems
                 if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
                     return;
 
-                Entity collidedEntity = collisionResult.Collider.Entity;
+                stack = collisionResult.Collider.Entity;
+                if (MainGameScene.TestGraveYardForCheckers(24))          //if true, then grave yard checkers go first
+                {
+                    stack = MainGameScene.GameStacks[24];                //automatically, use checkers from White grave yard stack
+                }
                 //
                 // Collided entity is a stack of checkers
                 // Test it to be empty or black checkers (do nothing)
                 //
-                StackComponent sc = collidedEntity.GetComponent<StackComponent>();
+                StackComponent sc = stack.GetComponent<StackComponent>();
                 if (sc == null)
                     return;                         //no stack of checkers
 
                 if (sc.CheckersInStack.Count == 0)
                     return;                         //empty stack of checkers
-
-                if (sc.CheckersInStack[0].Tag < 0)  //test first checker 
-                    return;                         //black checkers
+                //
+                // black checers tag are < 0 and white are > 0
+                //
+                if (sc.CheckersInStack[0].Tag < 0)
+                    return;                         //test first checker, if black checker leave
                 //
                 // This is the human player, White checker is grabbed 
-                // Find out where it can go, is it allowed to move
                 //
                 MainGameScene.Dragging = true;
                 Entity dragEnt = sc.CheckersInStack[0];
                 sc.CheckersInStack.RemoveAt(0);                 //Remove from original stack
 
                 DragComponent dc = new DragComponent();         
-                dc.FromStack = collidedEntity;                  //remember original stack
-                //dc.PrevPosition = dragEnt.Transform.Position;
+                dc.FromStack = stack;                           //remember original stack
                 dragEnt.AddComponent<DragComponent>(dc);        //add component so drag system can see it
 
                 MainGameScene.CheckerBeingDragged = dragEnt;    //make sure we know, the checker being dragged
-                
             }
             if (Input.LeftMouseButtonReleased)
             {
@@ -98,22 +105,42 @@ namespace Nez_Backgammon.ECS.Systems
                         MainGameScene.DropChecker2PreviousPosition();
                     return;
                 }
-
-                Entity collidedEntity = collisionResult.Collider.Entity;
-
+                //
+                // We have dropped on top of a Stack
+                //
+                stack = collisionResult.Collider.Entity;
+                 
                 if (MainGameScene.Dragging)
                 {
                     //
+                    // You can't drop White checkers on graveyard stacks
+                    //if (stack.Tag > 23)
+                    //{
+                    //    MainGameScene.DropChecker2PreviousPosition();
+                    //    MainGameScene.Dragging = false;
+                    //    return;
+                    //}
+
+                    //
                     // Drop location must either be Empty or have one or more White checkers
                     //
-                    StackComponent sc = collidedEntity.GetComponent<StackComponent>();
-                    if ((sc.CheckersInStack.Count == 0) || (sc.CheckersInStack[0].Tag > 0))
+                    StackComponent sc = stack.GetComponent<StackComponent>();
+                    singleBlack = ((sc.CheckersInStack.Count() == 1) && (sc.CheckersInStack[0].Tag < 0));   //single black
+                    stackIsEmpty = (sc.CheckersInStack.Count == 0);
+                    if (stackIsEmpty)
+                        stackIsWhite = true;
+                    else
+                        stackIsWhite = (sc.CheckersInStack[0].Tag > 0);
+                    
+
+                    if ( stackIsEmpty || stackIsWhite || singleBlack)
                     {
-                        MainGameScene.DropChecker2NewPosition(collidedEntity);
+                        MainGameScene.DropChecker2NewPosition(stack);
                     }
                     else
                         MainGameScene.DropChecker2PreviousPosition();
 
+                    MainGameScene.Dragging = false;
                 }
             }
         }

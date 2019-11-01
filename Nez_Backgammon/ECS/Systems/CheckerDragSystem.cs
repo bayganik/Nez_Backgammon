@@ -11,6 +11,9 @@ namespace Nez_Backgammon.ECS.Systems
 {
     public class CheckerDragSystem : EntityProcessingSystem
     {
+        //
+        // Any checker that has 'DragComponent' will be processed here
+        //
         MouseState CurrentMouse;
         public CheckerDragSystem(Matcher matcher) : base(matcher)
         {
@@ -18,7 +21,7 @@ namespace Nez_Backgammon.ECS.Systems
         public override void Process(Entity entity)
         {
             //
-            // Current location of the mouse used for the hand icon
+            // This Draws the Checker (entity) that is being dragged by mouse
             //
             CurrentMouse = Mouse.GetState();
             entity.Transform.Position = Scene.Camera.ScreenToWorldPoint(new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y));

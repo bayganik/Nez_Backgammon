@@ -29,25 +29,25 @@ namespace Nez_Backgammon.Scenes
         //
         // Game Board (to be passed around)
         //
+        public int TotalNumOfStacks { get; set; }
         public BKBoard GameBoard { get; set; }
         public int[] DiceRoll { get; set; }
-        public bool WhiteTurn { get; set; }
-        //public Entity WhiteGraveYard { get; set; }
-        //public Entity BlackGraveYard { get; set; }
+        public bool WhiteCanMove { get; set; }
+        public bool WhiteGraveYard { get; set; }
         //
-        // Stacks of checkers (24 for game, 1 white graveyard, 1 black grave yard)
+        // Stacks of checkers (first 24 for game, 1 white graveyard, 1 black grave yard, 1 white collection, 1 black collection)
         //
-        public Entity[] CheckerStacks = new Entity[26];
+        public Entity[] GameStacks;
         //
         // Mouse var, so we can track what it clicks on
         //
         Entity MouseCursor;                 // mouse cursor to track (could have an image!)
-        Entity Background;                  // backgammon board is the background 
+        Entity BoardImage;                  // backgammon board is the background 
+        Vector2 PosStacks;                  // location of each stack entity
 
-        Vector2 PosStacks = new Vector2(860, 505);
-        UICanvas UIC;
+        UICanvas UIC;                       // UI canvas to hold buttons & lables
 
-        public ImageButton PlayButton { get; set; }
+        //public ImageButton PlayButton { get; set; }
         public TextButton ExitButton { get; set; }
         public TextButton DiceButton { get; set; }
         public Label Msg { get; set; }
@@ -67,7 +67,7 @@ namespace Nez_Backgammon.Scenes
             TextEntity = CreateEntity("txt");
             TextEntity.Transform.Position = new Vector2(100, 20);
             TextEntity.Transform.Scale = new Vector2(2, 2);
-            var txt = new TextComponent(Graphics.Instance.BitmapFont, "MiniMax Test", new Vector2(0, 0), Color.White);
+            var txt = new TextComponent(Graphics.Instance.BitmapFont, "Backgammon Test", new Vector2(0, 0), Color.White);
            // txt.SetFont(font);
             TextEntity.AddComponent(txt);
 
@@ -93,40 +93,47 @@ namespace Nez_Backgammon.Scenes
             //Msg.SetPosition(800f, 90f);
             //Msg.SetSize(100f, 50f);
 
-            ImageButtonStyle stl = new ImageButtonStyle();
-            PlayButton = UIC.Stage.AddElement(new ImageButton(stl));
-            PlayButton.SetPosition(800f, 120);
+            //ImageButtonStyle stl = new ImageButtonStyle();
+            //PlayButton = UIC.Stage.AddElement(new ImageButton(stl));
+            //PlayButton.SetPosition(800f, 120);
+
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             // mouse entity (used for tracking of clicks)
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             MouseCursor = CreateEntity("mouse");
-            MouseCursor.AddComponent(new BoxCollider());
+            MouseCursor.AddComponent(new BoxCollider(15,15));
             MouseCursor.AddComponent(new MouseComponent());
+            
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
-            // Background is the backgammon board
+            // BoardImage is the wooden backgammon board
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
-            Background = CreateEntity("backgammonboard", new Vector2(0, 0));
-            Background.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("BKBoard")).SetRenderLayer(100));
-            Background.GetComponent<SpriteRenderer>().SetOrigin(new Vector2(0, 0));
-            Background.SetPosition(new Vector2(100, 50));
-            //
-            // positions bottom right
-            //
+            BoardImage = CreateEntity("backgammonboard", new Vector2(0, 0));
+            BoardImage.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("BKBoard")).SetRenderLayer(100));
+            BoardImage.GetComponent<SpriteRenderer>().SetOrigin(new Vector2(0, 0));
+            BoardImage.SetPosition(new Vector2(100, 50));
+
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+            // positions all 28 stacks on the screen (board)
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             Entity ent;
+            TotalNumOfStacks = 28;
+            GameStacks = new Entity[TotalNumOfStacks];
+            //
+            // Stacks bottom right
+            //
             PosStacks = new Vector2(860, 510);
             for (int i = 0; i < 6; i++)
             {
                 
                 ent = CreateEntity("stack" + i.ToString(), PosStacks);
                 PosStacks = PosStacks - new Vector2(62, 0);
-                //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")).SetRenderLayer(-99));
                 ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
                 ent.AddComponent(new StackComponent() { StackID = i });
-                //ent.AddComponent(new PilePlayComponent());
-                CheckerStacks[i] = ent;
+                ent.Tag = i;                //location of the stack on the board
+                GameStacks[i] = ent;
             }
             //
-            // positions bottom left
+            // Stacks bottom left
             //
             PosStacks = new Vector2(450, 510);
             for (int i = 6; i < 12; i++)
@@ -138,11 +145,11 @@ namespace Nez_Backgammon.Scenes
                 //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")).SetRenderLayer(-99));
                 ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
                 ent.AddComponent(new StackComponent() { StackID = i });
-                //ent.AddComponent(new PilePlayComponent());
-                CheckerStacks[i] = ent;
+                ent.Tag = i;                //location of the stack on the board
+                GameStacks[i] = ent;
             }
             //
-            // positions top left
+            // Stacks top left
             //
             PosStacks = new Vector2(140, 190);
             for (int i = 12; i < 18; i++)
@@ -154,11 +161,11 @@ namespace Nez_Backgammon.Scenes
                 //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
                 ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
                 ent.AddComponent(new StackComponent() { StackID = i });
-                //ent.AddComponent(new PilePlayComponent());
-                CheckerStacks[i] = ent;
+                ent.Tag = i;                //location of the stack on the board
+                GameStacks[i] = ent;
             }
             //
-            // positions top right
+            // Stacks top right
             //
             PosStacks = new Vector2(550, 190);
             for (int i = 18; i < 24; i++)
@@ -170,32 +177,55 @@ namespace Nez_Backgammon.Scenes
                 //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
                 ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
                 ent.AddComponent(new StackComponent() { StackID = i });
-                //ent.AddComponent(new PilePlayComponent());
-                CheckerStacks[i] = ent;
+                ent.Tag = i;                //location of the stack on the board
+                GameStacks[i] = ent;
             }
             //
-            // Graveyard for white = 24
+            // Graveyard stack for white = 24
             //
-            PosStacks = new Vector2(500, 505);
+            PosStacks = new Vector2(500, 510);
             ent = CreateEntity("stack 24" , PosStacks);
             PosStacks = PosStacks - new Vector2(62, 0);
 
-            //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
             ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
             ent.AddComponent(new StackComponent() { StackID = 24 });
-            CheckerStacks[24] = ent;
+            ent.Tag = 24;                //location of the stack on the board
+            GameStacks[24] = ent;
             //
-            // Graveyard for black = 25
+            // Graveyard stack for black = 25
             //
-            PosStacks = new Vector2(500, 180);
+            PosStacks = new Vector2(500, 190);
             ent = CreateEntity("stack 25", PosStacks);
             PosStacks = PosStacks - new Vector2(62, 0);
 
-            //ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
             ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
             ent.AddComponent(new StackComponent() { StackID = 25 });
-            CheckerStacks[25] = ent;
+            ent.Tag = 25;                //location of the stack on the board
+            GameStacks[25] = ent;
+            //
+            // Collector Stack for white = 26
+            //
+            PosStacks = new Vector2(950, 510);
+            ent = CreateEntity("stack 26", PosStacks);
+            PosStacks = PosStacks - new Vector2(62, 0);
 
+            ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
+            ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
+            ent.AddComponent(new StackComponent() { StackID = 26 });
+            ent.Tag = 26;                //location of the stack on the board
+            GameStacks[26] = ent;
+            //
+            // Collector Stack for black = 27
+            //
+            PosStacks = new Vector2(950, 190);
+            ent = CreateEntity("stack 27", PosStacks);
+            PosStacks = PosStacks - new Vector2(62, 0);
+
+            ent.AddComponent(new SpriteRenderer(Content.Load<Texture2D>("EmptyHolder")));
+            ent.AddComponent(new BoxCollider(-31, -123, 62, 246));
+            ent.AddComponent(new StackComponent() { StackID = 27 });
+            ent.Tag = 27;                //location of the stack on the board
+            GameStacks[27] = ent;
             //
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             // Systems to process our requests
@@ -205,11 +235,21 @@ namespace Nez_Backgammon.Scenes
             this.AddEntityProcessor(new BoardDispSystem(new Matcher().All(typeof(StackComponent))));
             this.AddEntityProcessor(new CheckerDragSystem(new Matcher().All(typeof(DragComponent))));
 
-            GameBoard = new BKBoard();
-            Dragging = false;
-            WhiteTurn = false;               //if true the Mouse Clicks are allowed
+            GameBoard = new BKBoard();          //GameBoard initiated for start of game
+            Dragging = false;                   //Are we dragging a White checker?
+            WhiteCanMove = false;               //if true the Mouse Clicks are allowed to move White checkers
+            WhiteGraveYard = false;             //no white checkers hits
 
-            Fill_Stacks();
+            Fill_Initial_GameBaord_Stacks();
+        }
+        public bool TestGraveYardForCheckers(int graveYardStackNum)
+        {
+            //
+            // Test to see if there are checkers in grave yard 
+            //
+            Entity stack = GameStacks[graveYardStackNum];
+            StackComponent sc = stack.GetComponent<StackComponent>();
+            return sc.CheckersInStack.Count() > 0;
         }
         public void DropChecker2NewPosition(Entity _dropStack)
         {
@@ -238,19 +278,42 @@ namespace Nez_Backgammon.Scenes
             DragComponent dc = CheckerBeingDragged.GetComponent<DragComponent>();
             CheckerBeingDragged.RemoveComponent(dc);
         }
-        private void Fill_Stacks()
+        private void Fill_Initial_GameBaord_Stacks()
         {
             int fanout = 3;
             int chkNumBlack = 0;
             int chkNumWhite = 0;
             SpriteRenderer sp;
-            for (int i = 0; i < 26; i++)
+            //
+            // There are 25 entities with Stacks of Checkers
+            //
+            for (int i = 0; i < TotalNumOfStacks; i++)
             {
-                if (i == 12)
-                    fanout = 4;
-
-                Entity stack = CheckerStacks[i];
-                StackComponent sc = stack.GetComponent<StackComponent>();
+                switch (i)
+                {
+                    case int n when (n <= 11):               //bottom of board
+                        fanout = 3;
+                        break;
+                    case int n when (n >= 12 && n <= 23):    //top of board
+                        fanout = 4;
+                        break;
+                    case 24:
+                        fanout = 4;     //downward (white graveyard)
+                        break;
+                    case 25:
+                        fanout = 3;     //upward (black graveyard)
+                        break;
+                    case 26:
+                        fanout = 3;     //upward (white collector)
+                        break;
+                    case 27:
+                        fanout = 4;     //downward (black collector)
+                        break;
+                }
+                //
+                // 
+                Entity boardLocation = GameStacks[i];        
+                StackComponent sc = boardLocation.GetComponent<StackComponent>();
                 sc.FannedDirection = fanout;
                 sc.CheckersInStack.Clear();
 
@@ -281,15 +344,11 @@ namespace Nez_Backgammon.Scenes
                     cc.HoldingStack = sc;
                     cc.CheckerFace = sp.Sprite;
                     _checker.AddComponent(cc);      //add check component
-                    //_checker.AddComponent(new BoxCollider(-20, -20, 40, 40));   //collider covers the checker
 
                     sc.CheckersInStack.Add(_checker);
                 }
 
             }
-
-
-
         }
         private void ExitButton_OnClicked(Button button)
         {
@@ -310,6 +369,21 @@ namespace Nez_Backgammon.Scenes
             TextEntity.Transform.Position = new Vector2(100, 20);
             var txt = TextEntity.GetComponent<TextComponent>();
             txt.RenderLayer = -100;
+
+            Roll_The_Dice();
+
+            txt.SetText("White Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString());
+            txt.SetColor(Color.White);
+            //
+            // Set the flag so MouseClickSystem will allow moves
+            //
+            WhiteCanMove = true;                                    //allow white to click on its checkers
+            WhiteGraveYard = TestGraveYardForCheckers(24);          //if true, then grave yard checkers go first
+
+            UpdateGameBoard();
+        }
+        public void Roll_The_Dice()
+        {
             //
             // random integer between min (inclusive) and max (exclusive)
             //
@@ -332,11 +406,27 @@ namespace Nez_Backgammon.Scenes
                 DiceRoll[0] = _dice1;
                 DiceRoll[1] = _dice2;
             }
-            txt.SetText("White Dice Roll: " + _dice1.ToString() + " - " + _dice2.ToString() + "   " + DiceRoll.Count().ToString());
-            txt.SetColor(Color.White);
-            WhiteTurn = true;           //allow white to click on its checkers
+        }
+        public void UpdateGameBoard()
+        {
+            Entity ent;
+            Entity checker;
 
-            //UpdateTheBoard();
+            for (int i = 0; i < TotalNumOfStacks; i++)
+            {
+                ent = GameStacks[i];
+                StackComponent sc = ent.GetComponent<StackComponent>();
+                if (sc.CheckersInStack.Count() > 0)
+                {
+                    checker = sc.CheckersInStack[0];
+
+                    if (checker.Tag > 0)
+                        GameBoard.NumOfCheckers[i] = sc.CheckersInStack.Count();
+                    else
+                        GameBoard.NumOfCheckers[i] = sc.CheckersInStack.Count() * -1;
+                }
+
+            }
         }
     }
 }

@@ -29,19 +29,21 @@ namespace Nez_Backgammon
         public int[] NumOfCheckers;
         public BKBoard()
         {
-            NumOfCheckers = new int[26];
+            NumOfCheckers = new int[28];
+            for (int i = 0; i < 28; i++)
+                NumOfCheckers[i] = 0;
             //
             // Places all checkers at their initial positions.
             //
-            NumOfCheckers[0] = -2;          //black Computer
-            NumOfCheckers[11] = -5;          //black Computer
-            NumOfCheckers[18] = -5;          //black Computer
-            NumOfCheckers[16] = -3;          //black Computer
+            NumOfCheckers[0] = -2;              //black Computer
+            NumOfCheckers[11] = -5;             //black Computer
+            NumOfCheckers[18] = -5;             //black Computer
+            NumOfCheckers[16] = -3;             //black Computer
 
-            NumOfCheckers[5] = 5;           //white
-            NumOfCheckers[12] = 5;           //white
-            NumOfCheckers[7] = 3;           //white
-            NumOfCheckers[23] = 2;           //white
+            NumOfCheckers[5] = 5;               //white
+            NumOfCheckers[12] = 5;              //white
+            NumOfCheckers[7] = 3;               //white
+            NumOfCheckers[23] = 2;              //white
         }
     }
 }
