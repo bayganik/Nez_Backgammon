@@ -22,7 +22,7 @@ namespace Nez_Backgammon.ECS.Systems
         //
         MouseState CurrentMouse;
         MainScene MainGameScene;
-        Entity stack;                   //game stack we clicked on
+        Entity gameStack;                   //game stack we clicked on
         Vector2 MousePos;
         public MouseClickSystem(Matcher matcher) : base(matcher)
         {
@@ -61,16 +61,16 @@ namespace Nez_Backgammon.ECS.Systems
                 if (!_mouseCollider.CollidesWithAny(out CollisionResult collisionResult))
                     return;
 
-                stack = collisionResult.Collider.Entity;
+                gameStack = collisionResult.Collider.Entity;
                 if (MainGameScene.TestGraveYardForCheckers(24))          //if true, then grave yard checkers go first
                 {
-                    stack = MainGameScene.GameStacks[24];                //automatically, use checkers from White grave yard stack
+                    gameStack = MainGameScene.GameStacks[24];                //automatically, use checkers from White grave yard stack
                 }
                 //
                 // Collided entity is a stack of checkers
                 // Test it to be empty or black checkers (do nothing)
                 //
-                StackComponent sc = stack.GetComponent<StackComponent>();
+                StackComponent sc = gameStack.GetComponent<StackComponent>();
                 if (sc == null)
                     return;                         //no stack of checkers
 
@@ -79,20 +79,22 @@ namespace Nez_Backgammon.ECS.Systems
                 //
                 // black checers tag are < 0 and white are > 0
                 //
-                if (sc.CheckersInStack[0].Tag < 0)
-                    return;                         //test first checker, if black checker leave
-                //
-                // This is the human player, White checker is grabbed 
-                //
+                //if (sc.CheckersInStack[0].Tag < 0)
+                //    return;                         //test first checker, if black checker leave
+
+                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+                // Human player has grabbed a White checker 
+                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+
                 MainGameScene.Dragging = true;
-                Entity dragEnt = sc.CheckersInStack[0];
-                sc.CheckersInStack.RemoveAt(0);                 //Remove from original stack
+                Entity chkerDragEntity = sc.CheckersInStack[0];
+                sc.CheckersInStack.RemoveAt(0);                     //Remove from original stack
 
                 DragComponent dc = new DragComponent();         
-                dc.FromStack = stack;                           //remember original stack
-                dragEnt.AddComponent<DragComponent>(dc);        //add component so drag system can see it
+                dc.FromStack = gameStack;                               //remember original stack
+                chkerDragEntity.AddComponent<DragComponent>(dc);         //add component so CheckerDragSystem can see it
 
-                MainGameScene.CheckerBeingDragged = dragEnt;    //make sure we know, the checker being dragged
+                MainGameScene.CheckerBeingDragged = chkerDragEntity;     //make sure we know, the checker being dragged
             }
             if (Input.LeftMouseButtonReleased)
             {
@@ -108,7 +110,7 @@ namespace Nez_Backgammon.ECS.Systems
                 //
                 // We have dropped on top of a Stack
                 //
-                stack = collisionResult.Collider.Entity;
+                gameStack = collisionResult.Collider.Entity;
                  
                 if (MainGameScene.Dragging)
                 {
@@ -124,9 +126,10 @@ namespace Nez_Backgammon.ECS.Systems
                     //
                     // Drop location must either be Empty or have one or more White checkers
                     //
-                    StackComponent sc = stack.GetComponent<StackComponent>();
+                    StackComponent sc = gameStack.GetComponent<StackComponent>();
                     singleBlack = ((sc.CheckersInStack.Count() == 1) && (sc.CheckersInStack[0].Tag < 0));   //single black
                     stackIsEmpty = (sc.CheckersInStack.Count == 0);
+
                     if (stackIsEmpty)
                         stackIsWhite = true;
                     else
@@ -135,7 +138,7 @@ namespace Nez_Backgammon.ECS.Systems
 
                     if ( stackIsEmpty || stackIsWhite || singleBlack)
                     {
-                        MainGameScene.DropChecker2NewPosition(stack);
+                        MainGameScene.DropChecker2NewPosition(gameStack);
                     }
                     else
                         MainGameScene.DropChecker2PreviousPosition();

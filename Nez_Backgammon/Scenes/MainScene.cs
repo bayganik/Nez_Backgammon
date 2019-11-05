@@ -18,6 +18,21 @@ namespace Nez_Backgammon.Scenes
 {
     public class MainScene : BaseScene
     {
+
+        //
+        // Game Board (to be passed around)
+        //
+        public int TotalNumOfStacks { get; set; }
+        public BKBoard GameBoard { get; set; }
+        public int[] DiceRoll { get; set; }
+        public int[] LegalMoves { get; set; }
+        public bool WhiteCanMove { get; set; }
+        public bool WhiteGraveYard { get; set; }
+        //
+        // Stacks of checkers (first 24 for game, 1 white graveyard, 1 black grave yard, 1 white collection, 1 black collection)
+        //
+        public Entity[] GameStacks;
+
         SceneResolutionPolicy policy;
         NezSpriteFont font;
         Entity TextEntity;
@@ -26,18 +41,6 @@ namespace Nez_Backgammon.Scenes
         Entity FForward;
         Entity FBackward;
         Entity Pause;
-        //
-        // Game Board (to be passed around)
-        //
-        public int TotalNumOfStacks { get; set; }
-        public BKBoard GameBoard { get; set; }
-        public int[] DiceRoll { get; set; }
-        public bool WhiteCanMove { get; set; }
-        public bool WhiteGraveYard { get; set; }
-        //
-        // Stacks of checkers (first 24 for game, 1 white graveyard, 1 black grave yard, 1 white collection, 1 black collection)
-        //
-        public Entity[] GameStacks;
         //
         // Mouse var, so we can track what it clicks on
         //
@@ -254,7 +257,44 @@ namespace Nez_Backgammon.Scenes
         public void DropChecker2NewPosition(Entity _dropStack)
         {
             //
-            // Drop is good, put checker back in its original stack
+            // Test the checker for its legal move locations
+            //
+            for (int i = 0; i < LegalMoves.Count(); i++)
+            {
+                if (_dropStack.Tag == Math.Abs(LegalMoves[i]))      //if dropped stack is equal to a legal move
+                {
+                    if (LegalMoves[i] < 0)                          //black checker got hit
+                    {
+                        Entity _blackGraveYard = GameStacks[25];
+                        StackComponent sc = _dropStack.GetComponent<StackComponent>();
+                        Entity _blackchkerEntity = sc.CheckersInStack[0];
+                        sc.CheckersInStack.RemoveAt(0);                     //Remove from original stack
+                        DropChecker(_blackGraveYard, _blackchkerEntity);    //black moves to graveyard
+                    }
+                    //
+                    // drop the white checker being dragged
+                    //
+                    DropChecker(_dropStack);                        //found the correct location
+                    return;
+                }
+            }
+            //
+            // legal moves didn't work
+            //
+            DropChecker2PreviousPosition();
+        }
+        private void DropChecker(Entity _dropStack, Entity _checker)
+        {
+            //
+            // Drop a checer into a stack
+            //
+            StackComponent sc = _dropStack.GetComponent<StackComponent>();
+            sc.CheckersInStack.Add(_checker);
+        }
+        private void DropChecker(Entity _dropStack)
+        {
+            //
+            // Drop is good, put checker in its new stack
             //
             StackComponent sc = _dropStack.GetComponent<StackComponent>();
             sc.CheckersInStack.Add(CheckerBeingDragged);
@@ -317,7 +357,7 @@ namespace Nez_Backgammon.Scenes
                 sc.FannedDirection = fanout;
                 sc.CheckersInStack.Clear();
 
-                int _totalchkers = Math.Abs(GameBoard.NumOfCheckers[i]);
+                int _totalchkers = Math.Abs(GameBoard.BoardLocation[i]);
                 for (int j = 0; j < _totalchkers; j++)
                 {
                     Entity _checker = CreateEntity("Checker" + i.ToString());
@@ -325,7 +365,7 @@ namespace Nez_Backgammon.Scenes
                     CheckerComponent cc = new CheckerComponent();
                     cc.CName = "Checker" + i.ToString();
 
-                    if (GameBoard.NumOfCheckers[i] < 0)
+                    if (GameBoard.BoardLocation[i] < 0)
                     {
                         sp = new SpriteRenderer(Content.Load<Texture2D>("BlackChecker"));
                         cc.IsWhite = false;
@@ -421,9 +461,9 @@ namespace Nez_Backgammon.Scenes
                     checker = sc.CheckersInStack[0];
 
                     if (checker.Tag > 0)
-                        GameBoard.NumOfCheckers[i] = sc.CheckersInStack.Count();
+                        GameBoard.BoardLocation[i] = sc.CheckersInStack.Count();
                     else
-                        GameBoard.NumOfCheckers[i] = sc.CheckersInStack.Count() * -1;
+                        GameBoard.BoardLocation[i] = sc.CheckersInStack.Count() * -1;
                 }
 
             }

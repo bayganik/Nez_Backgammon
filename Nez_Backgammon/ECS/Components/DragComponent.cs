@@ -10,7 +10,7 @@ namespace Nez_Backgammon.ECS.Components
 {
     public class DragComponent : Component
     {
-        public Entity FromStack;
+        public Entity FromStack;                            //which game stack it came from
         public Vector2 PrevPosition;
         public DragComponent()
         {
