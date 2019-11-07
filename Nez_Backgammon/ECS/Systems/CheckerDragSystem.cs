@@ -14,7 +14,7 @@ namespace Nez_Backgammon.ECS.Systems
     /*
      * ONLY white checkers are dragged by the mouse
      * Update the position of the white checker (same as mouse position)
-     * Find out which locations it can land (according to Dice roll)
+     * Find all legal moves (according to Dice roll)
      */
     public class CheckerDragSystem : EntityProcessingSystem
     {
@@ -27,7 +27,7 @@ namespace Nez_Backgammon.ECS.Systems
 
         int boardLoc = 0;
         BKBoard gameBoad;
-        int[] legalMoves;
+        //int[] legalMoves;
         public CheckerDragSystem(Matcher matcher) : base(matcher)
         {
         }
@@ -39,7 +39,7 @@ namespace Nez_Backgammon.ECS.Systems
             CurrentMouse = Mouse.GetState();
             entity.Transform.Position = Scene.Camera.ScreenToWorldPoint(new Vector2(CurrentMouse.Position.X, CurrentMouse.Position.Y));
 
-            MainGameScene = entity.Scene as MainScene;              //hand entity belongs to MainScene
+            MainGameScene = entity.Scene as MainScene;              //mouse entity belongs to MainScene
             gameBoad = MainGameScene.GameBoard;
             //
             // Get the from location of the white checker
@@ -47,7 +47,7 @@ namespace Nez_Backgammon.ECS.Systems
             DragComponent dc = entity.GetComponent<DragComponent>();
             gameStack = dc.FromStack;
 
-            boardLoc = gameStack.Tag;                               //white checker came from location on the board
+            boardLoc = gameStack.Tag;                               //white checker came from this location on the board
             MainGameScene.LegalMoves = gameBoad.GetWhiteLegalMoves(MainGameScene.DiceRoll, boardLoc);
             //StackComponent sc = gameStack.GetComponent<StackComponent>();
         }

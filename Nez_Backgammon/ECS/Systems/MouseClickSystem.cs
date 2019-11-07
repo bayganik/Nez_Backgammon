@@ -36,6 +36,12 @@ namespace Nez_Backgammon.ECS.Systems
             //
             MainGameScene = entity.Scene as MainScene;              //hand entity belongs to MainScene
 
+            if (MainGameScene.GameEnded)
+            {
+                MainGameScene.EndOfGame();
+                return;
+            }
+
             if (!MainGameScene.WhiteCanMove)                        //Can white move?
                 return;
 
@@ -79,22 +85,23 @@ namespace Nez_Backgammon.ECS.Systems
                 //
                 // black checers tag are < 0 and white are > 0
                 //
-                //if (sc.CheckersInStack[0].Tag < 0)
-                //    return;                         //test first checker, if black checker leave
+                if (sc.CheckersInStack[0].Tag < 0)
+                    return;                         //test first checker, if black checker leave
 
                 //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
                 // Human player has grabbed a White checker 
                 //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
 
                 MainGameScene.Dragging = true;
-                Entity chkerDragEntity = sc.CheckersInStack[0];
-                sc.CheckersInStack.RemoveAt(0);                     //Remove from original stack
+                Entity chkerDragEntity = sc.CheckersInStack[0];         //checker being dragged is saved
+                sc.CheckersInStack.RemoveAt(0);                         //checker being dragges is Removed from original stack
 
                 DragComponent dc = new DragComponent();         
                 dc.FromStack = gameStack;                               //remember original stack
-                chkerDragEntity.AddComponent<DragComponent>(dc);         //add component so CheckerDragSystem can see it
+                chkerDragEntity.AddComponent<DragComponent>(dc);        //add component so CheckerDragSystem can see it
 
-                MainGameScene.CheckerBeingDragged = chkerDragEntity;     //make sure we know, the checker being dragged
+                MainGameScene.CheckerBeingDragged = chkerDragEntity;    //make sure we know, the checker being dragged
+
             }
             if (Input.LeftMouseButtonReleased)
             {
@@ -124,7 +131,7 @@ namespace Nez_Backgammon.ECS.Systems
                     //}
 
                     //
-                    // Drop location must either be Empty or have one or more White checkers
+                    // Drop location must either be Empty or have one or more White checkers, or be collector
                     //
                     StackComponent sc = gameStack.GetComponent<StackComponent>();
                     singleBlack = ((sc.CheckersInStack.Count() == 1) && (sc.CheckersInStack[0].Tag < 0));   //single black

@@ -25,9 +25,12 @@ namespace Nez_Backgammon.Scenes
         public int TotalNumOfStacks { get; set; }
         public BKBoard GameBoard { get; set; }
         public int[] DiceRoll { get; set; }
-        public int[] LegalMoves { get; set; }
+        public Dictionary<int, int> LegalMoves { get; set; }
         public bool WhiteCanMove { get; set; }
         public bool WhiteGraveYard { get; set; }
+        public bool GameEnded { get; set; }
+        public int PlayerWon { get; set; }
+
         //
         // Stacks of checkers (first 24 for game, 1 white graveyard, 1 black grave yard, 1 white collection, 1 black collection)
         //
@@ -120,6 +123,8 @@ namespace Nez_Backgammon.Scenes
             //znznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             Entity ent;
             TotalNumOfStacks = 28;
+            GameEnded = false;                          //true = game has ended
+            PlayerWon = 0;                              // 0=no one, 1=human, 2=computer
             GameStacks = new Entity[TotalNumOfStacks];
             //
             // Stacks bottom right
@@ -237,6 +242,7 @@ namespace Nez_Backgammon.Scenes
             this.AddEntityProcessor(new MouseClickSystem(new Matcher().All(typeof(MouseComponent))));
             this.AddEntityProcessor(new BoardDispSystem(new Matcher().All(typeof(StackComponent))));
             this.AddEntityProcessor(new CheckerDragSystem(new Matcher().All(typeof(DragComponent))));
+            this.AddEntityProcessor(new EndOfGameSystem());
 
             GameBoard = new BKBoard();          //GameBoard initiated for start of game
             Dragging = false;                   //Are we dragging a White checker?
@@ -257,24 +263,29 @@ namespace Nez_Backgammon.Scenes
         public void DropChecker2NewPosition(Entity _dropStack)
         {
             //
-            // Test the checker for its legal move locations
+            // Test the checker for its legal move locations (called/set by CheckerDragSystem)
+            // values are 0 - 23 and if value is negative, then a single black checker is sitting in there
+            // remove the dice roll that brought us to this drop location (set it to zero)
             //
-            for (int i = 0; i < LegalMoves.Count(); i++)
+            foreach (KeyValuePair<int, int> _myMoves in LegalMoves)
             {
-                if (_dropStack.Tag == Math.Abs(LegalMoves[i]))      //if dropped stack is equal to a legal move
+
+                if (_dropStack.Tag == Math.Abs(_myMoves.Value))      //if dropped stack is equal to a legal move
                 {
-                    if (LegalMoves[i] < 0)                          //black checker got hit
+                    if (_myMoves.Value < 0)                          //black checker got hit
                     {
                         Entity _blackGraveYard = GameStacks[25];
                         StackComponent sc = _dropStack.GetComponent<StackComponent>();
-                        Entity _blackchkerEntity = sc.CheckersInStack[0];
-                        sc.CheckersInStack.RemoveAt(0);                     //Remove from original stack
+                        Entity _blackchkerEntity = sc.CheckersInStack[0];   //get the black checker
+                        sc.CheckersInStack.RemoveAt(0);                     //Remove black checker from original stack
                         DropChecker(_blackGraveYard, _blackchkerEntity);    //black moves to graveyard
                     }
                     //
                     // drop the white checker being dragged
                     //
                     DropChecker(_dropStack);                        //found the correct location
+                    DiceRoll[_myMoves.Key] = 0;                     //remove the dice value
+                    RefreshDiceValues();
                     return;
                 }
             }
@@ -290,6 +301,8 @@ namespace Nez_Backgammon.Scenes
             //
             StackComponent sc = _dropStack.GetComponent<StackComponent>();
             sc.CheckersInStack.Add(_checker);
+
+            UpdateGameBoard();
         }
         private void DropChecker(Entity _dropStack)
         {
@@ -298,6 +311,8 @@ namespace Nez_Backgammon.Scenes
             //
             StackComponent sc = _dropStack.GetComponent<StackComponent>();
             sc.CheckersInStack.Add(CheckerBeingDragged);
+
+            UpdateGameBoard();
 
             ClearDragChecker();
         }
@@ -390,6 +405,21 @@ namespace Nez_Backgammon.Scenes
 
             }
         }
+        public void EndOfGame()
+        {
+            //
+            // Exit button is pressed
+            //
+            TextEntity.Transform.Position = new Vector2(350, 400);
+            var txt = TextEntity.GetComponent<TextComponent>();
+            txt.RenderLayer = -100;
+            if (PlayerWon == 1)
+                txt.SetText("GAME IS OVER ! White Player Won.");
+            else
+                txt.SetText("GAME IS OVER ! Black Player Won.");
+
+            txt.SetColor(Color.White);
+        }
         private void ExitButton_OnClicked(Button button)
         {
             //
@@ -403,17 +433,9 @@ namespace Nez_Backgammon.Scenes
         }
         private void DiceButton_OnClicked(Button button)
         {
-            //
-            // Give a pair of numbers
-            //
-            TextEntity.Transform.Position = new Vector2(100, 20);
-            var txt = TextEntity.GetComponent<TextComponent>();
-            txt.RenderLayer = -100;
-
             Roll_The_Dice();
 
-            txt.SetText("White Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString());
-            txt.SetColor(Color.White);
+            RefreshDiceValues();
             //
             // Set the flag so MouseClickSystem will allow moves
             //
@@ -429,6 +451,9 @@ namespace Nez_Backgammon.Scenes
             //
             int _dice1 = Nez.Random.Range(1, 7);
             int _dice2 = Nez.Random.Range(1, 7);
+
+            //_dice1 = 1;
+            //_dice2 = 1;
             //
             // if a double, then we have 4 chances to move
             //
@@ -447,6 +472,18 @@ namespace Nez_Backgammon.Scenes
                 DiceRoll[1] = _dice2;
             }
         }
+        public void RefreshDiceValues()
+        {
+            //
+            // display the dice roll
+            //
+            //TextEntity.Transform.Position = new Vector2(100, 20);
+            var txt = TextEntity.GetComponent<TextComponent>();
+            txt.RenderLayer = -100;
+
+            txt.SetText("White Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString());
+            txt.SetColor(Color.White);
+        }
         public void UpdateGameBoard()
         {
             Entity ent;
@@ -454,6 +491,7 @@ namespace Nez_Backgammon.Scenes
 
             for (int i = 0; i < TotalNumOfStacks; i++)
             {
+                GameBoard.BoardLocation[i] = 0;
                 ent = GameStacks[i];
                 StackComponent sc = ent.GetComponent<StackComponent>();
                 if (sc.CheckersInStack.Count() > 0)
@@ -465,7 +503,6 @@ namespace Nez_Backgammon.Scenes
                     else
                         GameBoard.BoardLocation[i] = sc.CheckersInStack.Count() * -1;
                 }
-
             }
         }
     }

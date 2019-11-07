@@ -53,6 +53,9 @@ namespace Nez_Backgammon
             BoardLocation[11] = -5;             //black Computer
             BoardLocation[18] = -5;             //black Computer
             BoardLocation[16] = -3;             //black Computer
+            //
+            // put single black checkers so we can hit
+            //
             //BoardLocation[0] = -1;              //black Computer
             //BoardLocation[11] = -1;             //black Computer
             //BoardLocation[18] = -1;             //black Computer
@@ -62,6 +65,13 @@ namespace Nez_Backgammon
             BoardLocation[12] = 5;              //white
             BoardLocation[7] = 3;               //white
             BoardLocation[23] = 2;              //white
+            //
+            // put all white checkers at home so we can test collection
+            //
+            //BoardLocation[1] = 5;               //white
+            //BoardLocation[2] = 5;              //white
+            //BoardLocation[3] = 3;               //white
+            //BoardLocation[5] = 2;              //white
         }
         //
         // Test Location 24 is white, 25 is black
@@ -86,10 +96,22 @@ namespace Nez_Backgammon
                     totalCheckers += BoardLocation[i];
                 }
             }
-
+            totalCheckers += BoardLocation[26];         //what has already been collected
             if (totalCheckers == 15)
                 return true;
 
+            return false;
+        }
+        public bool WhiteWinsGame()
+        {
+            if (BoardLocation[26] == 15)
+                return true;
+            return false;
+        }
+        public bool BlackWinsGame()
+        {
+            if (BoardLocation[27] == 15)
+                return true;
             return false;
         }
         //
@@ -105,80 +127,113 @@ namespace Nez_Backgammon
                     totalCheckers += Math.Abs(BoardLocation[i]);
                 }
             }
-
+            totalCheckers += Math.Abs(BoardLocation[27]);         //what has already been collected
             if (totalCheckers == 15)
                 return true;
 
             return false;
         }
-        public int[] GetWhiteLegalMoves(int[] _dice, int _fromLoc)
+        //
+        // This is called during white checker drag operations
+        // So, we know the _fromLoc of the checkers 
+        //
+        public Dictionary<int, int> GetWhiteLegalMoves(int[] _dice, int _fromLoc)
         {
-            int[] legalMoves;
+            Dictionary<int,int> legalMoves;
+            //
+            // How many moves can the checker have
+            //
+            //if (_dice[0] == _dice[1])
+            //    legalMoves = new int[4];            //4 legal moves for doubles
+            //else
+            //    legalMoves = new int[2];            // 2 legal moves
+            //
+            legalMoves = new Dictionary<int, int>();
 
-            if (_dice[0] == _dice[1])
-                legalMoves = new int[4];            //4 legal moves at most
-            else
-                legalMoves = new int[2];            // 2 legal moves
-            //
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             // if white is coming from GraveYard
-            //
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             if (_fromLoc == 24)
             {
                 for (int i = 0; i < _dice.Count(); i++)
                 {
+                    if (_dice[i] <= 0)                          //dice roll is used
+                        continue;
+                    //
+                    // landloc will be 18 - 23
+                    //
                     int landloc = _fromLoc - _dice[i];
-                    legalMoves[i] = 0;
+                    //legalMoves[i] = 0;
                     switch (BoardLocation[landloc])
                     {
-                        case -1:
-                            legalMoves[i] = landloc * -1;       //single black checker
+                        case -1:                                //single black checker
+                            legalMoves.Add(i, landloc * -1);
+                            //legalMoves[i] = landloc * -1;       
                             break;
                         case int n when (n >= 0):               //empty or whit checkers
-                            legalMoves[i] = landloc;
+                            legalMoves.Add(i, landloc);
+                            //legalMoves[i] = landloc;
                             break;
                     }
                 }
-
+                
                 return legalMoves;
             }
-            //
+            
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             // Can white collect checkers
-            //
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             if (CanWhiteCollectCheckers())
             {
                 for (int i = 0; i < _dice.Count(); i++)
                 {
+                    if (_dice[i] <= 0)                          //dice roll is used
+                        continue;
+
                     int landloc = _fromLoc - _dice[i];
-                    legalMoves[i] = 0;
-                    switch (BoardLocation[landloc])
+                    //legalMoves[i] = 0;
+                    switch (landloc)
                     {
-                        case int n when (n < 0):
-                            legalMoves[i] = 26;                 //white collection stack
+                        case int n when (n < 0):                //white collection stack
+                            legalMoves.Add(i, 26);
+                            //legalMoves[i] = 26;                 
                             break;
-                        case int n when (n >= 0):               //empty or whit checkers
-                            legalMoves[i] = landloc;
+                        case int n when (n >= 0):               //cannot collect, must play
+                            if (BoardLocation[landloc] == -1)   //single black checker
+                                legalMoves.Add(i, landloc);
+
+                            if (BoardLocation[landloc] >= 0)   //empty or white checkers
+                                legalMoves.Add(i, landloc);
+
+                            //legalMoves[i] = landloc;
                             break;
                     }
                 }
 
                 return legalMoves;
             }
-            //
+            
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             // Normal white checker move
-            //
+            //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
             for (int i = 0; i < _dice.Count(); i++)
             {
+                if (_dice[i] <= 0)                          //dice roll is used
+                    continue;
+
                 int landloc = _fromLoc - _dice[i];
                 if (landloc >= 0)
                 {
-                    legalMoves[i] = 0;
+                    //legalMoves[i] = 0;
                     switch (BoardLocation[landloc])
                     {
-                        case -1:
-                            legalMoves[i] = landloc * -1;       //single black checker
+                        case -1:                                //single black checker
+                            legalMoves.Add(i, landloc * -1);
+                            //legalMoves[i] = landloc * -1;       
                             break;
                         case int n when (n >= 0):               //empty or whit checkers
-                            legalMoves[i] = landloc;
+                            legalMoves.Add(i, landloc);
+                            //legalMoves[i] = landloc;
                             break;
                     }
                 }

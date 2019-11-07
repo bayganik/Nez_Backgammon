@@ -58,7 +58,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BKBoard.cs" />
+    <Compile Include="ECS\Components\EndOfGameComponent.cs" />
+    <Compile Include="ECS\Systems\EndOfGameSystem.cs" />
+    <Compile Include="Models\BKBoard.cs" />
     <Compile Include="ECS\Components\CheckerComponent.cs" />
     <Compile Include="ECS\Components\ComputerComponent.cs" />
     <Compile Include="ECS\Components\DiceComponent.cs" />
