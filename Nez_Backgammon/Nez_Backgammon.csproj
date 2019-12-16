@@ -71,7 +71,6 @@
     <Compile Include="ECS\Systems\MouseClickSystem.cs" />
     <Compile Include="ECS\Systems\BoardDispSystem.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Models\ExpectMinimax.cs" />
     <Compile Include="Models\GameState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
