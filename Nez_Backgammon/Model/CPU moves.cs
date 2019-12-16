@@ -26,7 +26,7 @@ public class Computer : Player
             this.Game.Dice.useAllDices();
             return;
         }
-        calcMoves(this.Game.CurrentBoard.NumOfCheckersInPipe, res.board, this.Game.Dice);
+        calcMoves(this.Game.CurrentBoard.BoardLocation, res.board, this.Game.Dice);
         this.Game.Dice.useAllDices();
         Console.WriteLine(res); // print the result of the algorithm in the
                                 // console

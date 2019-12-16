@@ -68,9 +68,18 @@ namespace Nez_Backgammon.ECS.Systems
                     return;
 
                 gameStack = collisionResult.Collider.Entity;
-                if (MainGameScene.TestGraveYardForCheckers(24))          //if true, then grave yard checkers go first
+                if (MainGameScene.TestGraveYardForCheckers(24) > 0)          //if true, then graveyard checkers go first
                 {
-                    gameStack = MainGameScene.GameStacks[24];                //automatically, use checkers from White grave yard stack
+                    if(!MainGameScene.WhiteCanMoveFromGraveYard())
+                    {
+                        MainGameScene.WhiteCanMove = false;
+                        return;
+                    }
+                    //
+                    // Test to see if White can move from graveyard, if not then set Whitecanmove to false
+                    //
+
+                    gameStack = MainGameScene.GameStacks[24];                //automatically, use checkers from White graveyard stack
                 }
                 //
                 // Collided entity is a stack of checkers

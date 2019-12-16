@@ -24,7 +24,7 @@ namespace Nez_Backgammon
      * |-----------------|------------------|
      *  11 10  9  8  7  6  5  4  3  2  1  0
      */
-    public class BKBoard
+    public class BGBoard
     {
         /*
          * Game legal move positions 0 - 23
@@ -37,51 +37,57 @@ namespace Nez_Backgammon
          * Positive numbers are white checkers (human)
          * Zero indicates an open location (black or white)
          */
-        public int[] BoardLocation;
-        public BKBoard()
+        public int[] DispBoard;
+        public BGBoard()
         {
-            BoardLocation = new int[28];
+            DispBoard = new int[28];
             //
             // initialize the game board used for finding legal moves
             //
             for (int i = 0; i < 28; i++)
-                BoardLocation[i] = 0;
+                DispBoard[i] = 0;
             //
             // Places all checkers at their initial positions.
             //
-            BoardLocation[0] = -2;              //black Computer
-            BoardLocation[11] = -5;             //black Computer
-            BoardLocation[18] = -5;             //black Computer
-            BoardLocation[16] = -3;             //black Computer
+            DispBoard[0] = -2;              //black Computer
+            DispBoard[11] = -5;             //black Computer
+            DispBoard[18] = -5;             //black Computer
+            DispBoard[16] = -3;             //black Computer
+            //DispBoard[25] = -1;             //black graveyard
             //
             // put single black checkers so we can hit
             //
-            //BoardLocation[0] = -1;              //black Computer
-            //BoardLocation[11] = -1;             //black Computer
-            //BoardLocation[18] = -1;             //black Computer
-            //BoardLocation[16] = -1;             //black Computer
+            //DispBoard[0] = -1;              //black Computer
+            //DispBoard[11] = -1;             //black Computer
+            //DispBoard[18] = -1;             //black Computer
+            //DispBoard[16] = -1;             //black Computer
 
-            BoardLocation[5] = 5;               //white
-            BoardLocation[12] = 5;              //white
-            BoardLocation[7] = 3;               //white
-            BoardLocation[23] = 2;              //white
+            DispBoard[5] = 5;               //white
+            DispBoard[12] = 5;              //white
+            DispBoard[7] = 3;               //white
+            DispBoard[23] = 2;              //white
             //
             // put all white checkers at home so we can test collection
             //
-            //BoardLocation[1] = 5;               //white
-            //BoardLocation[2] = 5;              //white
-            //BoardLocation[3] = 3;               //white
-            //BoardLocation[5] = 2;              //white
+            //DispBoard[1] = 5;               //white
+            //DispBoard[2] = 5;              //white
+            //DispBoard[3] = 3;               //white
+            //DispBoard[5] = 2;              //white
+
         }
         //
         // Test Location 24 is white, 25 is black
         //
         public bool HasCheckersInGraveYard(int _location)
         {
-            if (Math.Abs(BoardLocation[_location]) > 0)
+            if (Math.Abs(DispBoard[_location]) > 0)
                 return true;
 
             return false;
+        }
+        public int GetDispBoard(int index)
+        {
+            return this.DispBoard[index];
         }
         //
         // Test location 0 - 5 for white
@@ -91,12 +97,12 @@ namespace Nez_Backgammon
             int totalCheckers = 0;
             for (int i = 0; i < 6; i++)
             {
-                if (BoardLocation[i] > 0)
+                if (DispBoard[i] > 0)
                 {
-                    totalCheckers += BoardLocation[i];
+                    totalCheckers += DispBoard[i];
                 }
             }
-            totalCheckers += BoardLocation[26];         //what has already been collected
+            totalCheckers += DispBoard[26];         //what has already been collected
             if (totalCheckers == 15)
                 return true;
 
@@ -104,13 +110,13 @@ namespace Nez_Backgammon
         }
         public bool WhiteWinsGame()
         {
-            if (BoardLocation[26] == 15)
+            if (DispBoard[26] == 15)
                 return true;
             return false;
         }
         public bool BlackWinsGame()
         {
-            if (BoardLocation[27] == 15)
+            if (Math.Abs(DispBoard[27]) == 15)
                 return true;
             return false;
         }
@@ -122,12 +128,12 @@ namespace Nez_Backgammon
             int totalCheckers = 0;
             for (int i = 18; i < 24; i++)
             {
-                if (BoardLocation[i] < 0)
+                if (DispBoard[i] < 0)
                 {
-                    totalCheckers += Math.Abs(BoardLocation[i]);
+                    totalCheckers += Math.Abs(DispBoard[i]);
                 }
             }
-            totalCheckers += Math.Abs(BoardLocation[27]);         //what has already been collected
+            totalCheckers += Math.Abs(DispBoard[27]);         //what has already been collected
             if (totalCheckers == 15)
                 return true;
 
@@ -164,7 +170,7 @@ namespace Nez_Backgammon
                     //
                     int landloc = _fromLoc - _dice[i];
                     //legalMoves[i] = 0;
-                    switch (BoardLocation[landloc])
+                    switch (DispBoard[landloc])
                     {
                         case -1:                                //single black checker
                             legalMoves.Add(i, landloc * -1);
@@ -199,10 +205,10 @@ namespace Nez_Backgammon
                             //legalMoves[i] = 26;                 
                             break;
                         case int n when (n >= 0):               //cannot collect, must play
-                            if (BoardLocation[landloc] == -1)   //single black checker
+                            if (DispBoard[landloc] == -1)   //single black checker
                                 legalMoves.Add(i, landloc);
 
-                            if (BoardLocation[landloc] >= 0)   //empty or white checkers
+                            if (DispBoard[landloc] >= 0)   //empty or white checkers
                                 legalMoves.Add(i, landloc);
 
                             //legalMoves[i] = landloc;
@@ -225,7 +231,7 @@ namespace Nez_Backgammon
                 if (landloc >= 0)
                 {
                     //legalMoves[i] = 0;
-                    switch (BoardLocation[landloc])
+                    switch (DispBoard[landloc])
                     {
                         case -1:                                //single black checker
                             legalMoves.Add(i, landloc * -1);

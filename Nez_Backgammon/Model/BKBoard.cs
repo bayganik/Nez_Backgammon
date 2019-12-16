@@ -23,11 +23,11 @@ namespace Backgammon.Model
      */
     public class BKBoard
     {
-        public int[] NumOfCheckersInPipe;
+        public int[] BoardLocation;
 
         public BKBoard()
         {
-            NumOfCheckersInPipe = new int[26];
+            BoardLocation = new int[26];
             InitCheckers();
         }
         public void InitCheckers()
@@ -35,34 +35,34 @@ namespace Backgammon.Model
             //
             // Places all checkers at their initial positions.
             //
-            NumOfCheckersInPipe[0] = -2;           //black Computer
-            NumOfCheckersInPipe[11] = -5;          //black Computer
-            NumOfCheckersInPipe[18] = -5;          //black Computer
-            NumOfCheckersInPipe[16] = -3;          //black Computer
+            BoardLocation[0] = -2;           //black Computer
+            BoardLocation[11] = -5;          //black Computer
+            BoardLocation[18] = -5;          //black Computer
+            BoardLocation[16] = -3;          //black Computer
 
-            NumOfCheckersInPipe[5] = 5;            //white
-            NumOfCheckersInPipe[12] = 5;           //white
-            NumOfCheckersInPipe[7] = 3;            //white
-            NumOfCheckersInPipe[23] = 2;           //white
+            BoardLocation[5] = 5;            //white
+            BoardLocation[12] = 5;           //white
+            BoardLocation[7] = 3;            //white
+            BoardLocation[23] = 2;           //white
 
-            //		NumOfCheckersInPipe[0] = 15;
+            //		BoardLocation[0] = 15;
             //
-            //		NumOfCheckersInPipe[23] = -15;
+            //		BoardLocation[23] = -15;
 
-            //		NumOfCheckersInPipe[0] = 13;
-            //		NumOfCheckersInPipe[24] = 2;
-            //		NumOfCheckersInPipe[5] = 0;
-            //		NumOfCheckersInPipe[12] = 0;
-            //		NumOfCheckersInPipe[11] = 0;
+            //		BoardLocation[0] = 13;
+            //		BoardLocation[24] = 2;
+            //		BoardLocation[5] = 0;
+            //		BoardLocation[12] = 0;
+            //		BoardLocation[11] = 0;
             //		
-            //		NumOfCheckersInPipe[16] = 0;
-            //		NumOfCheckersInPipe[7] = -3;
-            //		NumOfCheckersInPipe[18] = -2;
-            //		NumOfCheckersInPipe[19] = -2;
-            //		NumOfCheckersInPipe[20] = -2;
-            //		NumOfCheckersInPipe[21] = -2;
-            //		NumOfCheckersInPipe[22] = -2;
-            //		NumOfCheckersInPipe[23] = -2;
+            //		BoardLocation[16] = 0;
+            //		BoardLocation[7] = -3;
+            //		BoardLocation[18] = -2;
+            //		BoardLocation[19] = -2;
+            //		BoardLocation[20] = -2;
+            //		BoardLocation[21] = -2;
+            //		BoardLocation[22] = -2;
+            //		BoardLocation[23] = -2;
         } 
 
         public bool IsValid(int player, int containValue)
@@ -125,19 +125,19 @@ namespace Backgammon.Model
             }
             if (InBounds(to))
             {
-                if (IsValid(player, this.NumOfCheckersInPipe[to]))
+                if (IsValid(player, this.BoardLocation[to]))
                 {
-                    int r = SignOfNum(this.NumOfCheckersInPipe[from]); // the value of r can be -1/1/0
+                    int r = SignOfNum(this.BoardLocation[from]); // the value of r can be -1/1/0
 
-                    this.NumOfCheckersInPipe[from] -= r;
+                    this.BoardLocation[from] -= r;
                     // check if the pipe contain opposite player's 1 checker in it
-                    if (-r == this.NumOfCheckersInPipe[to])
+                    if (-r == this.BoardLocation[to])
                     {
                         // hit the blot and place into the bar
-                        this.NumOfCheckersInPipe[player == 1 ? this.BarNumForPlayer(2) : this.BarNumForPlayer(1)] += NumOfCheckersInPipe[to];
-                        this.NumOfCheckersInPipe[to] = 0;
+                        this.BoardLocation[player == 1 ? this.BarNumForPlayer(2) : this.BarNumForPlayer(1)] += BoardLocation[to];
+                        this.BoardLocation[to] = 0;
                     }
-                    this.NumOfCheckersInPipe[to] += r;
+                    this.BoardLocation[to] += r;
                     return true;
                 }
             }
@@ -160,7 +160,7 @@ namespace Backgammon.Model
         /// <summary>
         /// Checks if player has graveyard
         /// </summary>
-        /// <param name="NumOfCheckersInPipe"> </param>
+        /// <param name="BoardLocation"> </param>
         /// <param name="player">
         /// @return </param>
         public bool HasCheckerInBar(int player)
@@ -168,7 +168,7 @@ namespace Backgammon.Model
             //
             // check position 24 or 25
             //
-            return this.NumOfCheckersInPipe[BarNumForPlayer(player)] != 0;
+            return this.BoardLocation[BarNumForPlayer(player)] != 0;
         } // end of hasGyard
 
         // Returns whether player "owns" this checker or not.
@@ -184,9 +184,9 @@ namespace Backgammon.Model
             }
         }
 
-        public int GetNumOfCheckersInPipe(int index)
+        public int GetBoardLocation(int index)
         {
-            return this.NumOfCheckersInPipe[index];
+            return this.BoardLocation[index];
         }
 
         /// <summary>
@@ -198,36 +198,36 @@ namespace Backgammon.Model
                                                                         // return??
         {
             int count = 0;
-            for (int i = 0; i < NumOfCheckersInPipe.Length; i++)
+            for (int i = 0; i < BoardLocation.Length; i++)
             {
-                if (NumOfCheckersInPipe[i] > 0 && playerID == 1)
+                if (BoardLocation[i] > 0 && playerID == 1)
                 {
-                    // count += this.NumOfCheckersInPipe[i];
+                    // count += this.BoardLocation[i];
                     count++;
                 }
-                else if (NumOfCheckersInPipe[i] < 0 && playerID == 2)
+                else if (BoardLocation[i] < 0 && playerID == 2)
                 {
-                    // count += this.NumOfCheckersInPipe[i];
+                    // count += this.BoardLocation[i];
                     count++;
                 }
             }
             return count;
         }
 
-        public int CountNumOfCheckersInPipes(int playerID) // what would this method
+        public int CountBoardLocations(int playerID) // what would this method
         {
             // should return??
             int count = 0;
-            for (int i = 0; i < NumOfCheckersInPipe.Length; i++)
+            for (int i = 0; i < BoardLocation.Length; i++)
             {
-                if (NumOfCheckersInPipe[i] > 0 && playerID == 1)
+                if (BoardLocation[i] > 0 && playerID == 1)
                 {
-                    count += this.NumOfCheckersInPipe[i];
+                    count += this.BoardLocation[i];
                 }
                 // count++;
-                else if (NumOfCheckersInPipe[i] < 0 && playerID == 2)
+                else if (BoardLocation[i] < 0 && playerID == 2)
                 {
-                    count += this.NumOfCheckersInPipe[i];
+                    count += this.BoardLocation[i];
                 }
                 // count++;
             }
@@ -241,7 +241,7 @@ namespace Backgammon.Model
             int count = 0;
             for (int i = 0; i < 6; i++) // white's home
             {
-                if (this.IsPlayerOwnThePipe(player, this.NumOfCheckersInPipe[i]))
+                if (this.IsPlayerOwnThePipe(player, this.BoardLocation[i]))
                 {
                     count++;
                 }
@@ -259,7 +259,7 @@ namespace Backgammon.Model
         {
             for (int i = point + 1; i < 6; i++)
             {
-                if (NumOfCheckersInPipe[i] > 0)
+                if (BoardLocation[i] > 0)
                 {
                     return true;
                 }
@@ -317,16 +317,16 @@ namespace Backgammon.Model
             //
             // Sents the checker at player's point to graveyard
             //
-            NumOfCheckersInPipe[pos]--;
-            NumOfCheckersInPipe[this.BarNumForPlayer(1)]++;
+            BoardLocation[pos]--;
+            BoardLocation[this.BarNumForPlayer(1)]++;
         }
 
         public void RemoveChecker(int position)
         {
-            if (NumOfCheckersInPipe[position] > 0)
-                NumOfCheckersInPipe[position]--;
-            else if (NumOfCheckersInPipe[position] < 0)
-                NumOfCheckersInPipe[position]++;
+            if (BoardLocation[position] > 0)
+                BoardLocation[position]--;
+            else if (BoardLocation[position] < 0)
+                BoardLocation[position]++;
         }
     }
 }

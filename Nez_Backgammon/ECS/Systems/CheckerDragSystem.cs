@@ -26,7 +26,7 @@ namespace Nez_Backgammon.ECS.Systems
         Entity gameStack;                   //game stack white checker came frome
 
         int boardLoc = 0;
-        BKBoard gameBoad;
+        BGBoard gameBoad;
         //int[] legalMoves;
         public CheckerDragSystem(Matcher matcher) : base(matcher)
         {
