@@ -1,6 +1,6 @@
 # Nez ECS Backgammon Example
 
-This is a Backgammon game Human vs. Computer (in progress). Using NEZ which is a fantastic 2D Framework specifically using C# and Monogame.
+This is a Backgammon game Human vs. Computer. Comuter uses minimax (with Huristic values) to determine its move.  I am Using NEZ 2D which is a fantastic 2D Framework specifically using C# and Monogame.
 
 https://github.com/prime31/Nez
 
