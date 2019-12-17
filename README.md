@@ -17,5 +17,5 @@ I've added a "Tag" property to all Buttons in Nez.  Please make that addition to
 
 ## AI move tree
 
-![game image](AI move tree.png)
+![game image](AI_move_tree.png)
 
