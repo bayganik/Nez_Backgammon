@@ -1,22 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-//using Dice = Backgammon.model.Dice;
-//using Board = Backgammon.Board;
 
 namespace Nez_Backgammon.Models
 {
     public class GameState
     {
-        //internal int[] board;
-        //internal int[] dice;
-        //List<GameState> children;
-        //List<int[]> ChildBoards;                    //intermediate children
-        //List<int[]> TerminalBoards;                 //these will be evaluated
         public BGBoard OrigBoard;
-        //public int DiceUsed { get; set; }
-        //private double score;
-
 
         public GameState(BGBoard _board)
         {
@@ -124,7 +114,9 @@ namespace Nez_Backgammon.Models
         public int[] Evaluate(List<int[]> _allTerminalNodes)
         {
             //
-            // Count pips
+            // Count pips (not implemented.)
+            // Still working on this.  AI is not very smart it mostly plays
+            // with closest checkers to home.
             //
             //
             // we have terminal nodes to look thru
@@ -171,9 +163,9 @@ namespace Nez_Backgammon.Models
 
             if (_dice.Length == 1)
             {
-                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
-                // Only one dice to calculate, All the nodes are terminal nodes
-                //znznznznznznznznznznznznznznznznznznznznznznznznznznznznznznznzn
+                //znznznznznznznznznznznznznznznznznznznznznznznzznznznznznznznznznznznznznzn
+                // Only one dice to calculate.  Then all the nodes are terminal nodes
+                //znznznznznznznznznznznznznznznznznznznznznznznzznznznznznznznznznznznznznzn
 
                 TermNodes = GetChildNodes(OrigBoard.DispBoard, _dice[0]);
             }
@@ -330,11 +322,6 @@ namespace Nez_Backgammon.Models
 
             return result;
         }
-        // Return the position to start counting from when moving out of graveyard.
-        //public int countFrom(int player)
-        //{
-        //    return player == 1 ? 24 : -1;
-        //}
 
         public bool IsValid(int stack)
         {
@@ -344,24 +331,6 @@ namespace Nez_Backgammon.Models
             return false;
         }
 
-        //private int signum(int _num)
-        //{
-        //    int sig = 0;
-        //    switch (_num)
-        //    {
-        //        case int n when (n > 0):
-        //            sig = 1;
-        //            break;
-        //        case int n when (n == 0):
-        //            sig = 0;
-        //            break;
-        //        case int n when (n < 0):
-        //            sig = -1;
-        //            break;
-        //    }
-
-        //    return sig;
-        //}
         public int[] MakeMove(int[] board, int from, int to)
         {
             int r = -1;
@@ -377,26 +346,6 @@ namespace Nez_Backgammon.Models
             board[to] += r;
             return board;
         }
-
-        // Removes the top checker of "from" from the board.
-        //public void gather(int player, int[] board, int from)
-        //{
-        //    if (player == 1)
-        //    {
-        //        board[from] -= 1;
-        //    }
-        //    else
-        //    {
-        //        board[from] += 1;
-        //    }
-        //}
-
-        //// Return true if player has a graveyard
-        //public bool hasGraveYard(int[] board, int player)
-        //{
-        //    return board[graveYard(player)] != 0;
-        //}
-
 
         public bool PlayerHas(int stack)
         {

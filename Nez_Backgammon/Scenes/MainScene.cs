@@ -98,7 +98,7 @@ namespace Nez_Backgammon.Scenes
             BlackDiceBtn.SetPosition(900f, 10f);
             BlackDiceBtn.SetSize(90f, 30f);
             BlackDiceBtn.OnClicked += BlackDiceBtn_OnClicked;
-           
+            
 
             //Msg = UIC.Stage.AddElement(new Label("Label Msg"));
             //Msg.SetPosition(800f, 90f);
@@ -258,7 +258,7 @@ namespace Nez_Backgammon.Scenes
             // We have a GameBoard, use it to create checker entities
             //
             Fill_GameBoard_Stacks();
-            //UpdateStacksFromGameBoard();
+
             /*
              *  Game starts when WHITE player presses the [Roll Dice] button
              *  
@@ -787,7 +787,7 @@ namespace Nez_Backgammon.Scenes
             var txt = TextEntity.GetComponent<TextComponent>();
             txt.RenderLayer = -100;
 
-            txt.SetText("Black Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString());
+            txt.SetText("Black Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString() + " moves.");
             txt.SetColor(Color.White);
 
 
@@ -815,7 +815,7 @@ namespace Nez_Backgammon.Scenes
             var txt = TextEntity.GetComponent<TextComponent>();
             txt.RenderLayer = -100;
 
-            txt.SetText("White Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString());
+            txt.SetText("White Dice Roll: " + DiceRoll[0].ToString() + " - " + DiceRoll[1].ToString() + "   " + DiceRoll.Count().ToString() + " moves.");
             txt.SetColor(Color.White);
 
             
